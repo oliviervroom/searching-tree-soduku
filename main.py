@@ -1,5 +1,6 @@
 from renderer import Renderer
 from solver import Solver
+import time
 
 puzzle1 = [
     [0, 0, 3, 0, 2, 0, 6, 0, 0],
@@ -63,8 +64,16 @@ puzzle5 = [
 
 # initiate algorithm
 solver = Solver()
-solvedPuzzle = solver.solve(puzzle1)
+
+start_time = time.time()
+
+solvedPuzzle = solver.solve(puzzle2)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(elapsed_time)
 
 # Render result
 renderer = Renderer(solvedPuzzle)
-renderer.print()
+renderer.render()
