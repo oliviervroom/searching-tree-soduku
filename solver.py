@@ -13,13 +13,19 @@ class Solver:
         mask = self.create_mask(puzzle)
 
         # 2. for every cube fill numbers so that we have numbers 1-9
+        #TODO verander de functie zodat de nummers eerst geshuffeld worden voordat ze iteratief de nullen vervangen.
         puzzle = self.fill_zero_values(puzzle)
 
-        # 3.
-
+        # 3. Calculate the evaluation of all rows and columns based on the randomly filled-in sudoku
+        
         row_evaluations = [self.evaluate_list(puzzle[row]) for row in range(0,9)]
         col_evaluations = [self.evaluate_list(self.flatten_list(puzzle[0:9, col:col+1])) for col in range(0,9)]
 
+        # 4. Locate the cube with the highest evaluated entry and switch within the cube to obtain 
+        # a lower evaluation for the affected rows and columns
+        #TODO Moet de switch binnen een lokaal de eerste verbetering doen of de beste verbetering opzoeken
+        #TODO Zodra een switch is gedaan, moet er dan naar een andere waarde in het lokaal worden gekeken
+        # of bekijken we dan de hoogste evaluatie van de hele sudoku
         s = 5
         finished = False
 
