@@ -59,9 +59,10 @@ class Solver:
                 scope_mask = self.flatten_list(scope_mask)
 
                 while True:
-                    i = random.randint(1, 6) - 1
+                    i = random.randint(1, 9) - 1
 
-                    if scope_mask[i] == 0:
+                    locked = False # @todo check wheter should be locked
+                    if scope_mask[i] == 0 and not locked:
                         print(i)
                         exit()
 
