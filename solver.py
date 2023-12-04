@@ -12,9 +12,10 @@ class LocalSearchState(Enum):
 
 class Solver:
 
-    def __init__(self, initial_puzzle):
+    def __init__(self, initial_puzzle, solution):
         self.alg_tries = 0
         self.initial_puzzle = initial_puzzle
+        self.solution = solution
 
         self.init()
 
@@ -86,7 +87,8 @@ class Solver:
 
             if current_eval < best_eval:
                 best_eval = current_eval
-                print(f"\nTries: {tries}\nNew best eval: {best_eval}\nCurrent sudoku:\n{self.puzzle}\n")
+
+                print(f"\nTries: {tries}\nNew best eval: {best_eval}\nCurrent sudoku:\n{self.puzzle}\nWrong entries: {self.wrong_entries()}\n")
 
             if (highest_row_eval + highest_col_eval) == 0:
                 finished = True
@@ -297,3 +299,13 @@ class Solver:
 
     def flatten_list(self, list):
         return [item for sublist in list for item in sublist]
+
+    def wrong_entries(self):
+        wrong_entries = 0
+
+        for puzzle_row, solution_row in zip(self.puzzle, self.solution):
+            for puzzle_entry, solution_entry in zip(puzzle_row, solution_row):
+                if puzzle_entry != solution_entry:
+                    wrong_entries += 1
+
+        return wrong_entries

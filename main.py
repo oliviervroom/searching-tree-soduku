@@ -26,6 +26,18 @@ puzzle2 = [
     [0, 0, 4, 0, 1, 0, 0, 0, 3]
 ]
 
+puzzle2_solved = [
+    [2, 4, 5, 9, 8, 1, 3, 7, 6],
+    [1, 6, 9, 2, 7, 3, 5, 8, 4],
+    [8, 3, 7, 5, 6, 4, 2, 1, 9],
+    [9, 7, 6, 1, 2, 5, 4, 3, 8],
+    [5, 1, 3, 4, 9, 8, 6, 2, 7],
+    [4, 8, 2, 7, 3, 6, 9, 5, 1],
+    [3, 9, 1, 6, 5, 7, 8, 4, 2],
+    [7, 2, 8, 3, 4, 9, 1, 6, 5],
+    [6, 5, 4, 8, 1, 2, 7, 9, 3]
+]
+
 puzzle3 = [
     [0, 0, 0, 0, 0, 0, 9, 0, 7],
     [0, 0, 0, 4, 2, 0, 1, 8, 0],
@@ -63,7 +75,7 @@ puzzle5 = [
 ]
 
 # initiate algorithm
-solver = Solver(puzzle2)
+solver = Solver(puzzle2, puzzle2_solved)
 
 start_time = time.time()
 
@@ -76,4 +88,4 @@ print(elapsed_time)
 
 # Render result
 renderer = Renderer(solvedPuzzle)
-renderer.render()
+renderer.print()
