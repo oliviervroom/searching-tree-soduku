@@ -63,11 +63,11 @@ puzzle5 = [
 ]
 
 # initiate algorithm
-solver = Solver()
+solver = Solver(puzzle2)
 
 start_time = time.time()
 
-solvedPuzzle = solver.solve(puzzle2)
+solvedPuzzle = solver.solve()
 
 end_time = time.time()
 elapsed_time = end_time - start_time
