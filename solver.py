@@ -49,9 +49,12 @@ class Solver:
         tries = 0
         best_eval = 99999
 
-        random_credits = 2
-        pattern_credits = 5
-        plateau_credits = 10
+        random_credits = 5
+
+        pattern_credits = 10
+
+        # > 50!!
+        plateau_credits = 100
 
         cube_states = {
             1: LocalSearchState.NONE,
@@ -97,15 +100,7 @@ class Solver:
 
             # print('Cube:', cube_n)
 
-            highest_local_row_eval = max(self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)])
-            highest_local_col_eval = max(self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)])
-
-            start_row = ((math.ceil(cube_n / 3) - 1) * 3) + self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)].index(highest_local_row_eval)
-            start_col = (math.floor((cube_n - 1) % 3) + 1) + self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)].index(highest_local_col_eval)
-
-            start = (start_row, start_col)
-
-            cube_states[cube_n] = self.local_search(start, plateau_credits, pattern_credits)
+            cube_states[cube_n] = self.local_search(cube_n, plateau_credits, pattern_credits)
 
             # print('Randomizing. Number of new optimums:', sum_of_new_optimums, current_eval)
             if sum_of_new_optimums == 0:
@@ -163,7 +158,7 @@ class Solver:
 
         return puzzle
 
-    def local_search(self, start, plateau_credits=5, pattern_credits=5):
+    def local_search(self, cube_n, plateau_credits=5, pattern_credits=5):
         plateau_credits = pattern_credits + plateau_credits
 
         starting_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
@@ -171,7 +166,18 @@ class Solver:
         switch_tries = 0
         # last_switch = None
         last_states = [self.puzzle]
+
+        highest_local_row_eval = max(self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)])
+        highest_local_col_eval = max(self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)])
+
+        start_row = ((math.ceil(cube_n / 3) - 1) * 3) + self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)].index(highest_local_row_eval)
+        start_col = (math.floor((cube_n - 1) % 3) + 1) + self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)].index(highest_local_col_eval)
+
+        start = (start_row, start_col)
+
         while True:
+            start = self.get_absolute_end(start, random.randint(0, 8))
+
             # tried_same_switch = False
             random_switches = list(range(0, 8))
             random.shuffle(random_switches)
@@ -180,7 +186,7 @@ class Solver:
 
             for end_switch_i in random_switches:
                 end = self.get_absolute_end(start, end_switch_i)
-                switch = (start, end)
+                # switch = (start, end)
 
                 # tried_same_switch = switch == last_switch
 
@@ -243,7 +249,6 @@ class Solver:
                     return LocalSearchState.PLATEAU
 
             last_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
-            start = self.get_absolute_end(start, random.randint(0, 8))
 
     def get_absolute_end(self, start, end_switch_i):
         cube_row_base = ((math.ceil((start[0] + 1) / 3) - 1) * 3)
