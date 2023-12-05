@@ -1,6 +1,7 @@
 from renderer import Renderer
 from solver import Solver
 import time
+import json
 
 puzzle1 = [
     [0, 0, 3, 0, 2, 0, 6, 0, 0],
@@ -77,15 +78,38 @@ puzzle5 = [
 # initiate algorithm
 solver = Solver(puzzle2, puzzle2_solved)
 
-start_time = time.time()
+puzzle = solver.solve(2, 10, 20, 100000)
 
-solvedPuzzle = solver.solve()
+if not solver.finished:
+    print('Oops not found...')
 
-end_time = time.time()
-elapsed_time = end_time - start_time
 
-print(elapsed_time)
-
-# Render result
-renderer = Renderer(solvedPuzzle)
+print('\n')
+renderer = Renderer(puzzle)
 renderer.print()
+exit()
+
+results = {}
+for random_credits in range(1, 20):
+    for pattern_credits in range(0, 20):
+        for plateau_credits in range(0, 50):
+            for try_n in range(1,5):
+                start_time = time.time()
+
+                solver.init()
+                solver.solve(random_credits, pattern_credits, plateau_credits)
+
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+
+                if solver.finished:
+                    print((random_credits, pattern_credits, plateau_credits, try_n), elapsed_time)
+                    results[(random_credits, pattern_credits, plateau_credits, try_n)] = elapsed_time
+
+
+# File path where you want to save the JSON
+file_path = 'results.json'
+
+# Writing JSON data
+with open(file_path, 'w') as json_file:
+    json.dump(results, json_file, indent=4)

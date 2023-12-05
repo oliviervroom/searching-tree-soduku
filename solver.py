@@ -34,42 +34,27 @@ class Solver:
         self.row_evaluations = [self.evaluate_list(self.puzzle[row]) for row in range(0, 9)]
         self.col_evaluations = [self.evaluate_list(self.flatten_list(self.puzzle[0:9, col:col + 1])) for col in range(0, 9)]
 
-    def solve(self):
+    def solve(self, random_credits = 2, pattern_credits = 15, plateau_credits = 20, max_tries = math.inf):
         # 4. Locate the cube with the highest evaluated entry and switch within the cube to obtain 
         # a lower evaluation for the affected rows and columns
         #TODO Moet de switch binnen een lokaal de eerste verbetering doen of de beste verbetering opzoeken
         #TODO Zodra een switch is gedaan, moet er dan naar een andere waarde in het lokaal worden gekeken
         # of bekijken we dan de hoogste evaluatie van de hele sudoku
 
-        finished = False
-
-        self.alg_tries += 1
-
-        print('Tries:', self.alg_tries)
+        self.finished = False
 
         tries = 0
         best_eval = 99999
 
-        random_credits = 5
+        # random_credits = 2
+        # pattern_credits = 15
+        #
+        # # > 50!!
+        # plateau_credits = 20
 
-        pattern_credits = 10
+        cube_states = self.default_sudoku_state()
 
-        # > 50!!
-        plateau_credits = 100
-
-        cube_states = {
-            1: LocalSearchState.NONE,
-            2: LocalSearchState.NONE,
-            3: LocalSearchState.NONE,
-            4: LocalSearchState.NONE,
-            5: LocalSearchState.NONE,
-            6: LocalSearchState.NONE,
-            7: LocalSearchState.NONE,
-            8: LocalSearchState.NONE,
-            9: LocalSearchState.NONE
-        }
-
-        while not finished:
+        while not self.finished:
             tries += 1
 
             highest_row_eval = max(self.row_evaluations)
@@ -82,16 +67,19 @@ class Solver:
             sum_of_plateaus = sum(state is LocalSearchState.PLATEAU for state in cube_states.values())
 
             if tries % 1000 == 0:
-                sys.stdout.write(f"\rtries: {tries}, current_eval: {current_eval}, new_optimums: {sum_of_new_optimums}, same_optimums: {sum_of_same_optimums}, plateaus: {sum_of_plateaus}")
+                sys.stdout.write(f"\rtries: {tries}, Best eval: {best_eval}, current_eval: {current_eval}, new_optimums: {sum_of_new_optimums}, same_optimums: {sum_of_same_optimums}, plateaus: {sum_of_plateaus}")
                 sys.stdout.flush()
+
+            if tries > max_tries:
+                break
 
             if current_eval < best_eval:
                 best_eval = current_eval
 
-                print(f"\nTries: {tries}\nNew best eval: {best_eval}\nCurrent sudoku:\n{self.puzzle}\nWrong entries: {self.wrong_entries()}\n")
+                # print(f"\nTries: {tries}\nNew best eval: {best_eval}\nCurrent sudoku:\n{self.puzzle}\nWrong entries: {self.wrong_entries()}\n")
 
             if (highest_row_eval + highest_col_eval) == 0:
-                finished = True
+                self.finished = True
                 break
 
             # row_i = row_evaluations.index(highest_row_eval)
@@ -104,10 +92,18 @@ class Solver:
 
             cube_states[cube_n] = self.local_search(cube_n, plateau_credits, pattern_credits)
 
+            sum_of_none = sum(state is LocalSearchState.NONE for state in cube_states.values())
+            sum_of_new_optimums = sum(state is LocalSearchState.NEW_OPTIMUM for state in cube_states.values())
+
             # print('Randomizing. Number of new optimums:', sum_of_new_optimums, current_eval)
-            if sum_of_new_optimums == 0:
+            if sum_of_new_optimums == 0 and sum_of_none == 0:
                 for x in range(1, random_credits):
-                    random_start = (random.randint(0,8), random.randint(0,8))
+                    while True:
+                        random_start = (random.randint(0,8), random.randint(0,8))
+
+                        if self.mask[random_start[0]][random_start[1]] == 0:
+                            break
+
                     random_switches = list(range(0, 8))
                     random.shuffle(random_switches)
 
@@ -117,6 +113,9 @@ class Solver:
                         if self.mask[end[0]][end[1]] == 0 and not self.is_locked(random_start, end):
                             virtual = self.virtual_switch(random_start, end)
                             self.puzzle = virtual
+                            break
+
+                cube_states = self.default_sudoku_state()
 
             # print('Start switch:', start_switch_row, start_switch_col)
 
@@ -125,12 +124,12 @@ class Solver:
             # else:
             #     is_locked = lambda row, col: col == start_switch_col
 
-        if not finished:
-            self.init()
-            return self.solve()
+        # if not finished:
+        #     self.init()
+        #     return self.solve()
 
-        print('Solved')
-        print(self.puzzle)
+        # print('Solved')
+        # print(self.puzzle)
 
         return self.puzzle
 
@@ -166,19 +165,24 @@ class Solver:
         starting_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
         last_eval_sum = starting_eval_sum
         switch_tries = 0
+        pattern_occurrences = 0
         # last_switch = None
         last_states = [self.puzzle]
 
-        highest_local_row_eval = max(self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)])
-        highest_local_col_eval = max(self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)])
-
-        start_row = ((math.ceil(cube_n / 3) - 1) * 3) + self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)].index(highest_local_row_eval)
-        start_col = (math.floor((cube_n - 1) % 3) + 1) + self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)].index(highest_local_col_eval)
-
-        start = (start_row, start_col)
+        # highest_local_row_eval = max(self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)])
+        # highest_local_col_eval = max(self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)])
+        #
+        # start_row = ((math.ceil(cube_n / 3) - 1) * 3) + self.row_evaluations[self.get_row_start(cube_n):self.get_row_end(cube_n)].index(highest_local_row_eval)
+        # start_col = (math.floor((cube_n - 1) % 3) + 1) + self.col_evaluations[self.get_col_start(cube_n):self.get_col_end(cube_n)].index(highest_local_col_eval)
+        #
+        # start = (start_row, start_col)
 
         while True:
-            start = self.get_absolute_end(start, random.randint(0, 8))
+            while True:
+                start = self.get_absolute_end((self.get_row_start(cube_n), self.get_col_start(cube_n)), random.randint(0, 8))
+
+                if self.mask[start[0]][start[1]] == 0:
+                   break
 
             # tried_same_switch = False
             random_switches = list(range(0, 8))
@@ -209,7 +213,7 @@ class Solver:
                     new_state = not any(np.array_equal(virtual, arr) for arr in last_states)
 
                     if not new_state:
-                        pattern_credits -= 1
+                        pattern_occurrences += 1
 
                     if (new_rows_eval + new_cols_eval) <= (old_rows_eval + old_cols_eval):
                         self.puzzle = virtual
@@ -240,7 +244,7 @@ class Solver:
                 else:
                     return LocalSearchState.NEW_OPTIMUM
 
-            if pattern_credits <= 0:
+            if pattern_occurrences > pattern_credits:
                 return LocalSearchState.PLATEAU
 
             if last_eval_sum <= current_eval_sum:
@@ -309,3 +313,16 @@ class Solver:
                     wrong_entries += 1
 
         return wrong_entries
+
+    def default_sudoku_state(self):
+        return {
+            1: LocalSearchState.NONE,
+            2: LocalSearchState.NONE,
+            3: LocalSearchState.NONE,
+            4: LocalSearchState.NONE,
+            5: LocalSearchState.NONE,
+            6: LocalSearchState.NONE,
+            7: LocalSearchState.NONE,
+            8: LocalSearchState.NONE,
+            9: LocalSearchState.NONE
+        }
