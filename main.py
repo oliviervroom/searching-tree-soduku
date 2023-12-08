@@ -77,12 +77,14 @@ puzzle = [
 
 execution_key = uuid.uuid4()
 
-for optimization_credits in range(1, 10):
-    for random_credits in range(1, 2):
-        for pattern_credits in range(0, 1):
-            for plateau_credits in range(0, 1):
+# File path where you want to save the JSON
+file_path = f'results/results_{execution_key}.txt'
+
+for optimization_credits in range(5, 20):
+    for random_credits in [5]:
+        for pattern_credits in [0]:
+            for plateau_credits in [0]:
                 for sudoku in range(0,5):
-                    results = {}
                     for try_n in range(1,4):
                         # initiate algorithm
                         solver = Solver(optimization_credits, random_credits, pattern_credits, plateau_credits)
@@ -100,14 +102,10 @@ for optimization_credits in range(1, 10):
                                     print('not correct!')
 
                             print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
-                            results[(optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n)] = elapsed_time
+
+                            # Writing JSON data
+                            with open(file_path, 'a') as file:
+                                file.write([(optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks].__str__() + '\n')
                         else:
                             print('Failed')
                             print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
-
-                    # File path where you want to save the JSON
-                    file_path = f'results/results_{execution_key}.txt'
-
-                    # Writing JSON data
-                    with open(file_path, 'a') as file:
-                        file.write(results.__str__() + '\n')

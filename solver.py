@@ -84,7 +84,7 @@ class Solver:
 
             if sum_of_new_optimums == 0 and sum_of_none == 0:
                 self.n_random_walks += 1
-                for x in range(0, self.random_credits):
+                for x in range(0, max(1, current_eval)):
                     start = None
 
                     while True:
