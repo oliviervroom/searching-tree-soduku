@@ -4,8 +4,9 @@ from enum import Enum
 class LocalSearchState(Enum):
     NONE = 0
     PLATEAU = 1
-    SAME_OPTIMUM = 2
-    NEW_OPTIMUM = 3
+    PATTERN = 2
+    SAME_OPTIMUM = 3
+    NEW_OPTIMUM = 4
 
 
 class SudokuState:

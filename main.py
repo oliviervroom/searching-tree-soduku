@@ -54,11 +54,11 @@ puzzle = [
     [
         [0, 3, 0, 0, 5, 0, 0, 4, 0],
         [0, 0, 8, 0, 1, 0, 5, 0, 0],
-        [4, 6, 0, 0, 0, 0, 1, 2, 0],
+        [4, 6, 0, 0, 0, 0, 0, 1, 2],
         [0, 7, 0, 5, 0, 2, 0, 8, 0],
         [0, 0, 0, 6, 0, 3, 0, 0, 0],
         [0, 4, 0, 1, 0, 9, 0, 3, 0],
-        [0, 2, 5, 0, 0, 0, 0, 9, 8],
+        [2, 5, 0, 0, 0, 0, 0, 9, 8],
         [0, 0, 1, 0, 2, 0, 6, 0, 0],
         [0, 8, 0, 0, 6, 0, 0, 2, 0]
     ],
@@ -77,36 +77,37 @@ puzzle = [
 
 execution_key = uuid.uuid4()
 
-for random_credits in range(1, 20):
-    for pattern_credits in range(0, 20):
-        for plateau_credits in range(0, 50):
-            for sudoku in range(0,5):
-                results = {}
-                for try_n in range(1,4):
-                    # initiate algorithm
-                    solver = Solver(random_credits, pattern_credits, plateau_credits, 100000)
+for optimization_credits in range(1, 10):
+    for random_credits in range(1, 2):
+        for pattern_credits in range(0, 1):
+            for plateau_credits in range(0, 1):
+                for sudoku in range(0,5):
+                    results = {}
+                    for try_n in range(1,4):
+                        # initiate algorithm
+                        solver = Solver(optimization_credits, random_credits, pattern_credits, plateau_credits)
 
-                    start_time = time.time()
+                        start_time = time.time()
 
-                    solver.solve(puzzle[sudoku])
+                        solver.solve(puzzle[sudoku])
 
-                    end_time = time.time()
-                    elapsed_time = end_time - start_time
+                        end_time = time.time()
+                        elapsed_time = end_time - start_time
 
-                    if solver.finished:
-                        if sudoku == 1:
-                            if not numpy.array_equal(numpy.array(solver.sudoku.values), numpy.array(puzzle2_solved)):
-                                print('not correct!')
+                        if solver.finished:
+                            if sudoku == 1:
+                                if not numpy.array_equal(numpy.array(solver.sudoku.values), numpy.array(puzzle2_solved)):
+                                    print('not correct!')
 
-                        print((random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches)
-                        results[(random_credits, pattern_credits, plateau_credits, sudoku, try_n)] = elapsed_time
-                    else:
-                        print('Failed')
-                        print((random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches)
+                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
+                            results[(optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n)] = elapsed_time
+                        else:
+                            print('Failed')
+                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
 
-                # File path where you want to save the JSON
-                file_path = f'results/results_{execution_key}.txt'
+                    # File path where you want to save the JSON
+                    file_path = f'results/results_{execution_key}.txt'
 
-                # Writing JSON data
-                with open(file_path, 'a') as file:
-                    file.write(results.__str__() + '\n')
+                    # Writing JSON data
+                    with open(file_path, 'a') as file:
+                        file.write(results.__str__() + '\n')

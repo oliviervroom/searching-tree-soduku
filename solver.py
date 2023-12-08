@@ -10,7 +10,14 @@ class Solver:
     finished = False
     switches = 0
 
-    def __init__(self, random_credits=2, pattern_credits=15, plateau_credits=20, max_tries=math.inf):
+    n_new_optimums = 0
+    n_same_optimums = 0
+    n_plateaus = 0
+    n_patterns = 0
+    n_random_walks = 0
+
+    def __init__(self, optimization_credits=10, random_credits=2, pattern_credits=15, plateau_credits=20, max_tries=math.inf):
+        self.optimization_credits = optimization_credits
         self.random_credits = random_credits
         self.pattern_credits = pattern_credits
         self.plateau_credits = plateau_credits
@@ -56,12 +63,27 @@ class Solver:
 
             cube_n = random.randint(1,9)
 
-            self.sudoku_state.update_cube(cube_n, self.local_search(cube_n, self.plateau_credits, self.pattern_credits))
+            local_state = self.local_search(cube_n, self.optimization_credits, self.plateau_credits, self.pattern_credits)
+
+            if local_state == LocalSearchState.NEW_OPTIMUM:
+                self.n_new_optimums += 1
+
+            if local_state == LocalSearchState.SAME_OPTIMUM:
+                self.n_same_optimums += 1
+
+            if local_state == LocalSearchState.PLATEAU:
+                self.n_plateaus += 1
+
+            if local_state == LocalSearchState.PATTERN:
+                self.n_patterns += 1
+
+            self.sudoku_state.update_cube(cube_n, local_state)
 
             sum_of_none = self.sudoku_state.number_of_nones()
             sum_of_new_optimums = self.sudoku_state.number_of_new_optimums()
 
             if sum_of_new_optimums == 0 and sum_of_none == 0:
+                self.n_random_walks += 1
                 for x in range(0, self.random_credits):
                     start = None
 
@@ -95,13 +117,13 @@ class Solver:
 
                 self.sudoku_state.reset()
 
-            sum_of_new_optimums = self.sudoku_state.number_of_new_optimums()
-            sum_of_same_optimums = self.sudoku_state.number_of_same_optimums()
-            sum_of_plateaus = self.sudoku_state.number_of_plateaus()
-
-            if current_eval < best_eval:
-                best_eval = current_eval
-
+            # sum_of_new_optimums = self.sudoku_state.number_of_new_optimums()
+            # sum_of_same_optimums = self.sudoku_state.number_of_same_optimums()
+            # sum_of_plateaus = self.sudoku_state.number_of_plateaus()
+            #
+            # if current_eval < best_eval:
+            #     best_eval = current_eval
+            #
             # if tries % 1000 == 0:
             #     sys.stdout.write(f"\rtries: {tries}, Best eval: {best_eval}, current_eval: {current_eval}, new_optimums: {sum_of_new_optimums}, same_optimums: {sum_of_same_optimums}, plateaus: {sum_of_plateaus}")
             #     sys.stdout.flush()
@@ -134,7 +156,7 @@ class Solver:
 
         return values
 
-    def local_search(self, cube_n, plateau_credits=5, pattern_credits=5):
+    def local_search(self, cube_n, optimization_credits=10, plateau_credits=5, pattern_credits=5):
         plateau_credits = pattern_credits + plateau_credits
 
         switch_tries = 0
@@ -181,19 +203,22 @@ class Solver:
 
             current_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
 
-            if not switched or current_eval_sum == 0:
+            if switched and current_eval_sum <= starting_eval_sum:
+                optimization_credits -= 1
+
+            if optimization_credits <= 0 or not switched or current_eval_sum == 0:
                 if starting_eval_sum == current_eval_sum:
                     return LocalSearchState.SAME_OPTIMUM
                 else:
                     return LocalSearchState.NEW_OPTIMUM
 
-            if pattern_occurrences > pattern_credits:
-                return LocalSearchState.PLATEAU
+            if pattern_credits > 0 and pattern_occurrences >= pattern_credits:
+                return LocalSearchState.PATTERN
 
             if last_eval_sum <= current_eval_sum:
                 switch_tries += 1
 
-                if switch_tries > plateau_credits:
+                if plateau_credits > 0 and switch_tries >= plateau_credits:
                     return LocalSearchState.PLATEAU
 
             last_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
