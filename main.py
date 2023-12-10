@@ -81,9 +81,9 @@ execution_key = uuid.uuid4()
 file_path = f'results/results_{execution_key}.txt'
 
 for optimization_credits in range(5, 20):
-    for random_credits in [5]:
-        for pattern_credits in [0]:
-            for plateau_credits in [0]:
+    for random_credits in [2]:
+        for pattern_credits in [2]:
+            for plateau_credits in [2]:
                 for sudoku in range(0,5):
                     for try_n in range(1,4):
                         # initiate algorithm
