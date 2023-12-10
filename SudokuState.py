@@ -28,6 +28,9 @@ class SudokuState:
     def number_of_plateaus(self):
         return self.number_of(LocalSearchState.PLATEAU)
 
+    def number_of_patterns(self):
+        return self.number_of(LocalSearchState.PATTERN)
+
     def number_of_same_optimums(self):
         return self.number_of(LocalSearchState.SAME_OPTIMUM)
 
