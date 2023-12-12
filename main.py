@@ -80,10 +80,10 @@ execution_key = uuid.uuid4()
 # File path where you want to save the JSON
 file_path = f'results/results_{execution_key}.txt'
 
-for optimization_credits in range(3, 20):
+for optimization_credits in range(1, 21):
     for random_credits in [2]:
-        for pattern_credits in [2]:
-            for plateau_credits in [2]:
+        for pattern_credits in [0]:
+            for plateau_credits in [0]:
                 for sudoku in range(0,5):
                     if sudoku == 2:
                         continue
