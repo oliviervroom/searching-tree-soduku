@@ -1,5 +1,5 @@
 from renderer import Renderer
-from solver import Solver
+from solver import Solver, LocalSearchApproach
 import time
 import uuid
 import math
@@ -84,13 +84,22 @@ for optimization_credits in range(3, 20):
     for random_credits in [2]:
         for pattern_credits in [2]:
             for plateau_credits in [2]:
-                for sudoku in range(2,3):
-                    for try_n in range(1,4):
+                for sudoku in range(0,5):
+                    if sudoku == 2:
+                        continue
+
+                    for try_n in range(1,11):
                         # Logging?
                         verbose = True
 
                         # initiate algorithm
-                        solver = Solver(optimization_credits, random_credits, pattern_credits, plateau_credits, verbose=verbose)
+                        solver = Solver(
+                            optimization_credits=optimization_credits,
+                            random_credits=random_credits,
+                            pattern_credits=pattern_credits,
+                            plateau_credits=plateau_credits,
+                            local_search_approach=LocalSearchApproach.BEST_IMPROVEMENT,
+                            verbose=verbose)
 
                         start_time = time.time()
 

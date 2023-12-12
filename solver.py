@@ -1,16 +1,24 @@
 import numpy as np
 import math
 import random
+from enum import Enum
 from SudokuState import SudokuState, LocalSearchState
 from Sudoku import Sudoku
 from SudokuHelper import SudokuHelper
 import sys
 
 
+class LocalSearchApproach(Enum):
+    BEST_IMPROVEMENT = 0
+    FIRST_IMPROVEMENT = 1
+
+
 class Solver:
     finished = False
     verbose = False
-    
+
+    local_search_approach = LocalSearchApproach.FIRST_IMPROVEMENT
+
     n_of_switches = 0
 
     n_new_optimums = 0
@@ -19,12 +27,21 @@ class Solver:
     n_patterns = 0
     n_random_walks = 0
 
-    def __init__(self, optimization_credits=10, random_credits=2, pattern_credits=15, plateau_credits=20,max_tries=math.inf,verbose=False):
+    def __init__(self,
+                 local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
+                 optimization_credits=10,
+                 random_credits=2,
+                 pattern_credits=15,
+                 plateau_credits=20,
+                 max_tries=math.inf, verbose=False
+                 ):
         self.optimization_credits = optimization_credits
         self.random_credits = random_credits
         self.pattern_credits = pattern_credits
         self.plateau_credits = plateau_credits
         self.max_tries = max_tries
+
+        self.local_search_approach = local_search_approach
 
         self.row_evaluations = [9 for x in range(0, 9)]
         self.col_evaluations = [9 for x in range(0, 9)]
@@ -69,7 +86,8 @@ class Solver:
 
             cube_n = random.randint(1, 9)
 
-            local_state = self.local_search(cube_n, self.optimization_credits, self.plateau_credits, self.pattern_credits)
+            local_state = self.local_search(cube_n, self.optimization_credits, self.plateau_credits,
+                                            self.pattern_credits)
 
             self.sudoku_state.update_cube(cube_n, local_state)
 
@@ -129,6 +147,7 @@ class Solver:
                 sum_of_same_optimums = self.sudoku_state.number_of_same_optimums()
                 sum_of_plateaus = self.sudoku_state.number_of_plateaus()
                 sum_of_patterns = self.sudoku_state.number_of_patterns()
+                sum_of_none = self.sudoku_state.number_of_nones()
 
                 if current_eval < best_eval:
                     best_eval = current_eval
@@ -145,7 +164,9 @@ class Solver:
                         f"new_optimums: {sum_of_new_optimums}, "
                         f"same_optimums: {sum_of_same_optimums}, "
                         f"patterns: {sum_of_patterns}, "
-                        f"plateaus: {sum_of_plateaus}")
+                        f"plateaus: {sum_of_plateaus}, "
+                        f"nones: {sum_of_none}"
+                    )
                     sys.stdout.flush()
 
         if self.verbose:
@@ -174,30 +195,71 @@ class Solver:
             random.shuffle(random_end_ints)
             switched = False
 
-            for random_end_i in random_end_ints:
-                end = SudokuHelper.get_absolute_end(start, random_end_i)
+            if self.local_search_approach == LocalSearchApproach.FIRST_IMPROVEMENT:
+                for random_end_i in random_end_ints:
+                    end = SudokuHelper.get_absolute_end(start, random_end_i)
 
-                if self.mask[end[0]][end[1]] == 0 and not start == end:
-                    rows = list({start[0], end[0]})
-                    cols = list({start[1], end[1]})
-
-                    old_eval = sum(self.evaluate(rows=rows, cols=cols))
-                    self.sudoku.switch(start, end)
-                    new_eval = sum(self.evaluate(rows=rows, cols=cols))
-
-                    if new_eval <= old_eval:
+                    if self.mask[end[0]][end[1]] == 0 and not start == end:
                         rows = list({start[0], end[0]})
                         cols = list({start[1], end[1]})
 
-                        self.update_evaluation(rows, cols)
+                        old_eval = sum(self.evaluate(rows=rows, cols=cols))
+                        self.sudoku.switch(start, end)
+                        new_eval = sum(self.evaluate(rows=rows, cols=cols))
 
-                        self.n_of_switches += 1
+                        if new_eval <= old_eval:
+                            rows = list({start[0], end[0]})
+                            cols = list({start[1], end[1]})
 
-                        switched = True
+                            self.update_evaluation(rows, cols)
 
-                        break
-                    else:
+                            self.n_of_switches += 1
+
+                            switched = True
+
+                            break
+                        else:
+                            self.sudoku.switch(end, start)
+            elif self.local_search_approach == LocalSearchApproach.BEST_IMPROVEMENT:
+                evals_after_switch = {}
+
+                for random_end_i in random_end_ints:
+                    end = SudokuHelper.get_absolute_end(start, random_end_i)
+
+                    if self.mask[end[0]][end[1]] == 0 and not start == end:
+                        rows = list({start[0], end[0]})
+                        cols = list({start[1], end[1]})
+
+                        old_eval = sum(self.evaluate(rows=rows, cols=cols))
+                        self.sudoku.switch(start, end)
+                        new_eval = sum(self.evaluate(rows=rows, cols=cols))
                         self.sudoku.switch(end, start)
+
+                        if new_eval <= old_eval:
+                            evals_after_switch[old_eval - new_eval] = end
+
+                eval_wins = evals_after_switch.keys()
+
+                if len(eval_wins) == 0:
+                    break
+
+                best_eval_win = max(eval_wins)
+
+                if best_eval_win not in evals_after_switch:
+                    break
+
+                end = evals_after_switch[best_eval_win]
+
+                self.sudoku.switch(start, end)
+
+                rows = list({start[0], end[0]})
+                cols = list({start[1], end[1]})
+
+                self.update_evaluation(rows, cols)
+
+                self.n_of_switches += 1
+
+                switched = True
 
             current_eval_sum = sum(self.row_evaluations) + sum(self.col_evaluations)
 
