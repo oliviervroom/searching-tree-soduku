@@ -61,10 +61,7 @@ class Solver:
             if tries > self.max_tries:
                 break
 
-            highest_row_eval = max(self.row_evaluations)
-            highest_col_eval = max(self.col_evaluations)
-
-            current_eval = highest_row_eval + highest_col_eval
+            current_eval = sum(self.row_evaluations) + sum(self.col_evaluations)
 
             if current_eval == 0:
                 self.finished = True
@@ -81,7 +78,7 @@ class Solver:
 
             if sum_of_new_optimums == 0 and sum_of_none == 0:
                 self.n_random_walks += 1
-                for x in range(0, max(1, current_eval)):
+                for x in range(0, max(1, self.random_credits)):
                     start = None
 
                     while True:
@@ -135,11 +132,15 @@ class Solver:
 
                 if current_eval < best_eval:
                     best_eval = current_eval
+                    if best_eval == 1:
+                        print(self.sudoku.values)
+                        print(self.col_evaluations)
+                        print(self.row_evaluations)
 
                 if tries % 1000 == 0:
                     sys.stdout.write(
                         f"\rswitches: {self.n_of_switches}, "
-                        f"best_ceval: {best_eval}, "
+                        f"best_eval: {best_eval}, "
                         f"current_eval: {current_eval}, "
                         f"new_optimums: {sum_of_new_optimums}, "
                         f"same_optimums: {sum_of_same_optimums}, "
@@ -193,6 +194,8 @@ class Solver:
                         self.n_of_switches += 1
 
                         switched = True
+
+                        break
                     else:
                         self.sudoku.switch(end, start)
 
