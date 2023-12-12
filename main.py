@@ -78,7 +78,7 @@ puzzle = [
 execution_key = uuid.uuid4()
 
 # File path where you want to save the JSON
-file_path = f'results/results_{execution_key}.txt'
+file_path = f'results/results_first-imp.exp1.txt'
 
 for optimization_credits in range(1, 21):
     for random_credits in [2]:
@@ -98,7 +98,7 @@ for optimization_credits in range(1, 21):
                             random_credits=random_credits,
                             pattern_credits=pattern_credits,
                             plateau_credits=plateau_credits,
-                            local_search_approach=LocalSearchApproach.BEST_IMPROVEMENT,
+                            local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
                             verbose=verbose)
 
                         start_time = time.time()
