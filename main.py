@@ -78,16 +78,13 @@ puzzle = [
 execution_key = uuid.uuid4()
 
 # File path where you want to save the JSON
-file_path = f'results/results_first-imp.exp1.txt'
+file_path = f'results/results_first-imp.exp3-s3.oc10.rc1.txt'
 
-for optimization_credits in range(1, 21):
-    for random_credits in [2]:
-        for pattern_credits in [0]:
-            for plateau_credits in [0]:
-                for sudoku in range(0,5):
-                    if sudoku == 2:
-                        continue
-
+for optimization_credits in [10]:
+    for random_credits in [1]:
+        for plateau_credits in range(0,21):
+            for pattern_credits in [0]:
+                for sudoku in [2]:
                     for try_n in range(1,11):
                         # Logging?
                         verbose = True
@@ -109,15 +106,16 @@ for optimization_credits in range(1, 21):
                         elapsed_time = end_time - start_time
 
                         if solver.finished:
+                            # check if we broke something.. :D
                             if sudoku == 1:
                                 if not numpy.array_equal(numpy.array(solver.sudoku.values), numpy.array(puzzle2_solved)):
                                     print('not correct!')
 
                             print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
 
-                            # Writing JSON data
+                            # Writing data
                             with open(file_path, 'a') as file:
                                 file.write([(optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks].__str__() + '\n')
                         else:
                             print('Failed')
-                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
+                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
