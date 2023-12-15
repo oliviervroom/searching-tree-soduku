@@ -101,7 +101,7 @@ class Solver:
             #Perform a random walk when there are no none and new_optimum states
             if sum_of_new_optimums == 0 and sum_of_none == 0:
                 self.n_random_walks += 1
-                for x in range(0, max(1, self.random_credits)):
+                for x in range(0, self.random_credits):
                     start = None
 
                     while True:
