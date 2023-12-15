@@ -20,7 +20,7 @@ sudoku_puzzle = [[0, 0, 3, 0, 2, 0, 6, 0, 0], [9, 0, 0, 3, 0, 5, 0, 0, 1], [0, 0
 sudoku_puzzle = assignment_puzzles[0]
 
 # - How do you want to view the results?
-print_style = PrintStyle.CONSOLE
+print_style = PrintStyle.WINDOW
 
 # - Do you want to monitor the process?
 verbose = True
