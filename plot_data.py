@@ -4,11 +4,28 @@ from scipy.stats import linregress
 import numpy as np
 
 
+# Data
+categories = ['After experiment 1', 'After experiment 4']
+values = [85368, 30349]
+
+# Creating the bar chart
+plt.bar(categories, values)
+
+# Adding title and labels
+plt.title('First improvement: #switches vs Stages')
+plt.xlabel('Stages')
+plt.ylabel('#switches')
+
+# Show the plot
+plt.show()
+
+exit()
+
 # Initialize an empty list to store the extracted data
 data = []
 
 # Open the text file for reading
-with open("results/results_best-imp.exp1.txt", "r") as file:
+with open("results/results_first-imp.exp3.oc10.rc1.sudoku3.txt", "r") as file:
     for line in file:
         # Evaluate the line using eval() to get a tuple
         entry_tuple = eval(line.strip())
@@ -27,6 +44,8 @@ with open("results/results_best-imp.exp1.txt", "r") as file:
 average_switches_per_sudoku = defaultdict(list)
 sudoku_stats = {}
 for entry in data:
+    if entry[4] != 2:
+        continue
     if entry[4] not in sudoku_stats:
         sudoku_stats[entry[4]] = {}
 
@@ -40,13 +59,13 @@ for sudoku, tries in sudoku_stats.items():
     stats = {}
     for try_n, stat in tries.items():
         all_values = [values for stat in tries.values() for values in stat.values()]
-        #/max(all_values)
+        #/(sum(all_values)/len(all_values))
         values = zip(stat.keys(), [switches for oc, switches in stat.items()])
         for oc, n_switches in values:
             if oc not in stats:
                 stats[oc] = []
 
-            stats[oc].append(n_switches)
+            stats[oc].append(float(n_switches))
 
     average_stats = {}
     for oc, values in stats.items():
@@ -69,7 +88,7 @@ for key in average_switches_per_sudoku:
 # Creating the scatter plot
 plt.figure(figsize=(12, 8))
 
-# # Assign a unique color to each Sudoku
+# Assign a unique color to each Sudoku
 # colors = ['blue', 'green', 'red', 'cyan', 'magenta', 'yellow', 'black', 'orange', 'purple', 'brown']
 # color_index = 0
 #
@@ -81,6 +100,9 @@ plt.figure(figsize=(12, 8))
 #     # Plot the data for the current Sudoku
 #     plt.scatter(x_values, y_values, color=colors[color_index], label=f'Sudoku {sudoku}')
 #     color_index = (color_index + 1) % len(colors)
+#
+# x_values = [key[0] for key in average_switches_per_sudoku.keys()]
+# y_values = [average_switches_per_sudoku[key] for key in average_switches_per_sudoku.keys()]
 
 x_values = [key for key in average_switches_per_sudoku.keys()]
 y_values = [average_switches_per_sudoku[key] for key in average_switches_per_sudoku.keys()]
@@ -95,18 +117,15 @@ slope, intercept, _, _, _ = linregress(x_values, y_values)
 best_fit = slope * np.array(x_values) + intercept
 
 # Plot the best-fit line
-plt.plot(x_values, best_fit, color='red', label='Best Fit Line (Linear Regression)')
+# plt.plot(x_values, best_fit, color='red', label='Best Fit Line (Linear Regression)')
 
 plt.xticks(np.arange(min(x_values), max(x_values)+1, step=1))
 
-plt.annotate(y_values[3], (4, y_values[3]), xytext=(0, 15), textcoords='offset points', ha='center', va='bottom', fontsize=8,
+plt.annotate(y_values[0], (10, y_values[0]), xytext=(0, 15), textcoords='offset points', ha='center', va='bottom', fontsize=8,
                  bbox=dict(boxstyle='round,pad=1', fc='white', alpha=0.8))
 
-# plt.annotate(y_values[13], (14, y_values[13]), xytext=(0, 15), textcoords='offset points', ha='center', va='bottom', fontsize=8,
-#                  bbox=dict(boxstyle='round,pad=1', fc='white', alpha=0.8))
-
-plt.title('Best improvement: Average normalized #switches vs. Optimization credits (for all Sudoku)')
+plt.title('First improvement: #switches vs. Optimization credits (for sudoku 3)')
 plt.xlabel('Optimization credits')
-plt.ylabel('Average normalized #switches')
+plt.ylabel('#switches')
 plt.grid(True)
 plt.show()

@@ -78,12 +78,15 @@ puzzle = [
 execution_key = uuid.uuid4()
 
 # File path where you want to save the JSON
-file_path = f'results/results_first-imp.exp3-s3.oc10.rc1.txt'
+file_path = f'results/results_first-imp.final.sudoku3-2.txt'
+
+#sudoku 3 -> voor en na
+#scatterplot met alle sudokus
 
 for optimization_credits in [10]:
     for random_credits in [1]:
-        for plateau_credits in range(0,21):
-            for pattern_credits in [0]:
+        for plateau_credits in [4]:
+            for pattern_credits in [2]:
                 for sudoku in [2]:
                     for try_n in range(1,11):
                         # Logging?
