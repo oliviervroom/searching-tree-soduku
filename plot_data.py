@@ -3,24 +3,6 @@ from collections import defaultdict
 from scipy.stats import linregress
 import numpy as np
 
-
-# Data
-categories = ['After experiment 1', 'After experiment 4']
-values = [85368, 30349]
-
-# Creating the bar chart
-plt.bar(categories, values)
-
-# Adding title and labels
-plt.title('First improvement: #switches vs Stages')
-plt.xlabel('Stages')
-plt.ylabel('#switches')
-
-# Show the plot
-plt.show()
-
-exit()
-
 # Initialize an empty list to store the extracted data
 data = []
 

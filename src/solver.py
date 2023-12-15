@@ -2,9 +2,9 @@ import numpy as np
 import math
 import random
 from enum import Enum
-from SudokuState import SudokuState, LocalSearchState
-from Sudoku import Sudoku
-from SudokuHelper import SudokuHelper
+from src.sudoku.SudokuState import SudokuState, LocalSearchState
+from src.sudoku.Sudoku import Sudoku
+from src.sudoku.SudokuHelper import SudokuHelper
 import sys
 
 #Class which decides to switch approach

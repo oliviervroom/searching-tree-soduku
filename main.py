@@ -1,7 +1,7 @@
-from renderer import Renderer
-from solver import Solver, LocalSearchApproach
+from src.renderer import Renderer
+from src.solver import Solver, LocalSearchApproach
 import time
-from assignment_puzzles import assignment_puzzles
+from data.assignment_puzzles import assignment_puzzles
 from enum import Enum
 
 
@@ -21,6 +21,9 @@ sudoku_puzzle = assignment_puzzles[0]
 
 # - How do you want to view the results?
 print_style = PrintStyle.CONSOLE
+
+# - Do you want to monitor the process?
+verbose = True
 
 if not isinstance(sudoku_puzzle, list):
     # Check that pasted_sudoku is 161 characters long (including spaces)
@@ -44,7 +47,7 @@ solver = Solver(local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
                 random_credits=1,
                 pattern_credits=19,
                 plateau_credits=4,
-                verbose=True)
+                verbose=verbose)
 
 start_time = time.time()
 
