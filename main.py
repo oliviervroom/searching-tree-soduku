@@ -1,124 +1,67 @@
 from renderer import Renderer
 from solver import Solver, LocalSearchApproach
 import time
-import uuid
-import math
-import numpy
+from assignment_puzzles import assignment_puzzles
+from enum import Enum
 
-puzzle2_solved = [
-    [2, 4, 5, 9, 8, 1, 3, 7, 6],
-    [1, 6, 9, 2, 7, 3, 5, 8, 4],
-    [8, 3, 7, 5, 6, 4, 2, 1, 9],
-    [9, 7, 6, 1, 2, 5, 4, 3, 8],
-    [5, 1, 3, 4, 9, 8, 6, 2, 7],
-    [4, 8, 2, 7, 3, 6, 9, 5, 1],
-    [3, 9, 1, 6, 5, 7, 8, 4, 2],
-    [7, 2, 8, 3, 4, 9, 1, 6, 5],
-    [6, 5, 4, 8, 1, 2, 7, 9, 3]
-]
 
-puzzle = [
-    [
-        [0, 0, 3, 0, 2, 0, 6, 0, 0],
-        [9, 0, 0, 3, 0, 5, 0, 0, 1],
-        [0, 0, 1, 8, 0, 6, 4, 0, 0],
-        [0, 0, 8, 1, 0, 2, 9, 0, 0],
-        [7, 0, 0, 0, 0, 0, 0, 0, 8],
-        [0, 0, 6, 7, 0, 8, 2, 0, 0],
-        [0, 0, 2, 6, 0, 9, 5, 0, 0],
-        [8, 0, 0, 2, 0, 3, 0, 0, 9],
-        [0, 0, 5, 0, 1, 0, 3, 0, 0]
-    ],
-    [
-        [2, 0, 0, 0, 8, 0, 3, 0, 0],
-        [0, 6, 0, 0, 7, 0, 0, 8, 4],
-        [0, 3, 0, 5, 0, 0, 2, 0, 9],
-        [0, 0, 0, 1, 0, 5, 4, 0, 8],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [4, 0, 2, 7, 0, 6, 0, 0, 0],
-        [3, 0, 1, 0, 0, 7, 0, 4, 0],
-        [7, 2, 0, 0, 4, 0, 0, 6, 0],
-        [0, 0, 4, 0, 1, 0, 0, 0, 3]
-    ],
-    [
-        [0, 0, 0, 0, 0, 0, 9, 0, 7],
-        [0, 0, 0, 4, 2, 0, 1, 8, 0],
-        [0, 0, 0, 7, 0, 5, 0, 2, 6],
-        [1, 0, 0, 9, 0, 4, 0, 0, 0],
-        [0, 5, 0, 0, 0, 0, 0, 4, 0],
-        [0, 0, 0, 5, 0, 7, 0, 0, 9],
-        [9, 2, 0, 1, 0, 8, 0, 0, 0],
-        [0, 3, 4, 0, 5, 9, 0, 0, 0],
-        [5, 0, 7, 0, 0, 0, 0, 0, 0]
-    ],
-    [
-        [0, 3, 0, 0, 5, 0, 0, 4, 0],
-        [0, 0, 8, 0, 1, 0, 5, 0, 0],
-        [4, 6, 0, 0, 0, 0, 0, 1, 2],
-        [0, 7, 0, 5, 0, 2, 0, 8, 0],
-        [0, 0, 0, 6, 0, 3, 0, 0, 0],
-        [0, 4, 0, 1, 0, 9, 0, 3, 0],
-        [2, 5, 0, 0, 0, 0, 0, 9, 8],
-        [0, 0, 1, 0, 2, 0, 6, 0, 0],
-        [0, 8, 0, 0, 6, 0, 0, 2, 0]
-    ],
-    [
-        [0, 2, 0, 8, 1, 0, 7, 4, 0],
-        [7, 0, 0, 0, 0, 3, 1, 0, 0],
-        [0, 9, 0, 0, 0, 2, 8, 0, 5],
-        [0, 0, 9, 0, 4, 0, 0, 8, 7],
-        [4, 0, 0, 2, 0, 8, 0, 0, 3],
-        [1, 6, 0, 0, 3, 0, 2, 0, 0],
-        [3, 0, 2, 7, 0, 0, 0, 6, 0],
-        [0, 0, 5, 6, 0, 0, 0, 0, 8],
-        [0, 7, 6, 0, 5, 1, 0, 9, 0]
-    ]
-]
+class PrintStyle(Enum):
+    CONSOLE = 0
+    WINDOW = 1
 
-execution_key = uuid.uuid4()
+# For TA:
+# - Paste a puzzle below (string or list style)
+sudoku_puzzle = '0 2 0 8 1 0 7 4 0 7 0 0 0 0 3 1 0 0 0 9 0 0 0 2 8 0 5 0 0 9 0 4 0 0 8 7 4 0 0 2 0 8 0 0 3 1 6 0 0 3 0 2 0 0 3 0 2 7 0 0 0 6 0 0 0 5 6 0 0 0 0 8 0 7 6 0 5 1 0 9 0'
+sudoku_puzzle = [[0, 0, 3, 0, 2, 0, 6, 0, 0], [9, 0, 0, 3, 0, 5, 0, 0, 1], [0, 0, 1, 8, 0, 6, 4, 0, 0],
+                 [0, 0, 8, 1, 0, 2, 9, 0, 0], [7, 0, 0, 0, 0, 0, 0, 0, 8], [0, 0, 6, 7, 0, 8, 2, 0, 0],
+                 [0, 0, 2, 6, 0, 9, 5, 0, 0], [8, 0, 0, 2, 0, 3, 0, 0, 9], [0, 0, 5, 0, 1, 0, 3, 0, 0]]
 
-# File path where you want to save the JSON
-file_path = f'results/results_first-imp.final.sudoku3-2.txt'
+# - Or take one of the assignment puzzles (0-4)
+sudoku_puzzle = assignment_puzzles[0]
 
-#sudoku 3 -> voor en na
-#scatterplot met alle sudokus
+# - How do you want to view the results?
+print_style = PrintStyle.CONSOLE
 
-for optimization_credits in [10]:
-    for random_credits in [1]:
-        for plateau_credits in [4]:
-            for pattern_credits in [2]:
-                for sudoku in [2]:
-                    for try_n in range(1,11):
-                        # Logging?
-                        verbose = True
+if not isinstance(sudoku_puzzle, list):
+    # Check that pasted_sudoku is 161 characters long (including spaces)
+    if len(sudoku_puzzle) != 161:
+        print('Pasted Sudoku is not 161 characters long (including spaces)! Instead, it is: ')
+        print(len(sudoku_puzzle))
+        exit()
 
-                        # initiate algorithm
-                        solver = Solver(
-                            optimization_credits=optimization_credits,
-                            random_credits=random_credits,
-                            pattern_credits=pattern_credits,
-                            plateau_credits=plateau_credits,
-                            local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
-                            verbose=verbose)
+    # Check that pasted_sudoku is only numbers and spaces
+    if not sudoku_puzzle.replace(' ', '').isdigit():
+        print('Sudoku contains non-numeric characters')
+        exit()
 
-                        start_time = time.time()
+    # Turn pasted_sudoku into a list of lists to make it easier to load into the solver
+    sudoku_puzzle = [int(x) for x in sudoku_puzzle.split()]
+    sudoku_puzzle = [sudoku_puzzle[i:i + 9] for i in range(0, len(sudoku_puzzle), 9)]
 
-                        solver.solve(puzzle[sudoku])
+# Initiate solving algorithm
+solver = Solver(local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
+                optimization_credits=10,
+                random_credits=1,
+                pattern_credits=19,
+                plateau_credits=4,
+                verbose=True)
 
-                        end_time = time.time()
-                        elapsed_time = end_time - start_time
+start_time = time.time()
 
-                        if solver.finished:
-                            # check if we broke something.. :D
-                            if sudoku == 1:
-                                if not numpy.array_equal(numpy.array(solver.sudoku.values), numpy.array(puzzle2_solved)):
-                                    print('not correct!')
+solver.solve(sudoku_puzzle)
 
-                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
+end_time = time.time()
+elapsed_time = end_time - start_time
 
-                            # Writing data
-                            with open(file_path, 'a') as file:
-                                file.write([(optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks].__str__() + '\n')
-                        else:
-                            print('Failed')
-                            print((optimization_credits, random_credits, pattern_credits, plateau_credits, sudoku, try_n), elapsed_time, 'Switches:', solver.n_of_switches, 'NO:', solver.n_new_optimums, 'SO:', solver.n_same_optimums, 'PLT', solver.n_plateaus, 'PTRN', solver.n_patterns, 'RW', solver.n_random_walks)
+# Print the solved puzzle and the results
+if solver.finished:
+    print('Elapsed time in seconds:', elapsed_time, 'Total switches:', solver.n_of_switches)
+
+    if print_style == PrintStyle.WINDOW:
+        Renderer(solver.sudoku.values).render()
+    elif print_style == PrintStyle.CONSOLE:
+        Renderer(solver.sudoku.values).print()
+
+# Otherwise, print that the puzzle was not solved
+else:
+    print('Failed')
