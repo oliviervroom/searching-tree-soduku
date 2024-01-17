@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+
 
 class Renderer:
     def __init__(self, sudoku):

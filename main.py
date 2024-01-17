@@ -1,5 +1,9 @@
-from src.renderer import Renderer
-from src.solver import Solver, LocalSearchApproach
+from src.Renderer import Renderer
+from src.LocalSearch.LocalSearchSolver import LocalSearchSolver
+from src.LocalSearch.LocalSearchApproach import LocalSearchApproach
+from src.ChronologicalBacktracking.ChronologicalBacktrackingSolver import ChronologicalBacktrackingSolver
+from src.ChronologicalBacktracking.ChronologicalBacktrackingWithForwardCheckingSolver import ChronologicalBacktrackingWithForwardCheckingSolver
+from src.ChronologicalBacktracking.ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable import ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable
 import time
 from data.assignment_puzzles import assignment_puzzles
 from enum import Enum
@@ -17,10 +21,10 @@ sudoku_puzzle = [[0, 0, 3, 0, 2, 0, 6, 0, 0], [9, 0, 0, 3, 0, 5, 0, 0, 1], [0, 0
                  [0, 0, 2, 6, 0, 9, 5, 0, 0], [8, 0, 0, 2, 0, 3, 0, 0, 9], [0, 0, 5, 0, 1, 0, 3, 0, 0]]
 
 # - Or take one of the assignment puzzles (0-4)
-sudoku_puzzle = assignment_puzzles[0]
+sudoku_puzzle = assignment_puzzles[2]
 
 # - How do you want to view the results?
-print_style = PrintStyle.WINDOW
+print_style = PrintStyle.CONSOLE
 
 # - Do you want to monitor the process?
 verbose = True
@@ -42,12 +46,7 @@ if not isinstance(sudoku_puzzle, list):
     sudoku_puzzle = [sudoku_puzzle[i:i + 9] for i in range(0, len(sudoku_puzzle), 9)]
 
 # Initiate solving algorithm
-solver = Solver(local_search_approach=LocalSearchApproach.FIRST_IMPROVEMENT,
-                optimization_credits=10,
-                random_credits=1,
-                pattern_credits=19,
-                plateau_credits=4,
-                verbose=verbose)
+solver = ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(verbose=verbose)
 
 start_time = time.time()
 

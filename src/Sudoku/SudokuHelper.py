@@ -1,6 +1,8 @@
 import math
 import random
+
 import numpy
+
 
 class SudokuHelper:
 
@@ -72,8 +74,20 @@ class SudokuHelper:
         return int((math.ceil(cube / 3) - 1) * 3 + 3)
 
     @staticmethod
-    def get_cube_values(puzzle, cube_n):
-        return puzzle[
+    def get_row_by_element_number(element_n):
+        return math.floor(element_n / 9)
+
+    @staticmethod
+    def get_col_by_element_number(element_n):
+        return element_n % 9
+
+    @staticmethod
+    def get_cube(row, column):
+        return (math.floor(row / 3) * 3) + math.ceil((column + 1) / 3)
+
+    @staticmethod
+    def get_cube_values(values, cube_n):
+        return values[
            SudokuHelper.get_row_start(cube_n):SudokuHelper.get_row_end(cube_n),
            SudokuHelper.get_col_start(cube_n):SudokuHelper.get_col_end(cube_n)
        ]

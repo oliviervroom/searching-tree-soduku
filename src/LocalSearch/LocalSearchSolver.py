@@ -1,23 +1,22 @@
-import numpy as np
 import math
 import random
-from enum import Enum
-from src.sudoku.SudokuState import SudokuState, LocalSearchState
-from src.sudoku.Sudoku import Sudoku
-from src.sudoku.SudokuHelper import SudokuHelper
 import sys
 
-#Class which decides to switch approach
-class LocalSearchApproach(Enum):
-    BEST_IMPROVEMENT = 0
-    FIRST_IMPROVEMENT = 1
+import numpy as np
+
+from src.LocalSearch.LocalSearchApproach import LocalSearchApproach
+from src.LocalSearch.SudokuState import SudokuState, LocalSearchState
+from src.Solver import Solver
+from src.Sudoku.Sudoku import Sudoku
+from src.Sudoku.SudokuHelper import SudokuHelper
+
 
 #The class of the algorithm
-class Solver:
-    finished = False
-    verbose = False
-
+class LocalSearchSolver(Solver):
     local_search_approach = LocalSearchApproach.FIRST_IMPROVEMENT
+
+    mask = None
+    sudoku_state = None
 
     n_of_switches = 0
 
@@ -34,21 +33,23 @@ class Solver:
                  random_credits=1,
                  pattern_credits=4,
                  plateau_credits=19,
-                 max_tries=math.inf, verbose=True
+                 max_tries=math.inf,
+                 verbose=True
                  ):
+        super().__init__(verbose)
+
+        self.max_tries = max_tries
+
         self.optimization_credits = optimization_credits
         self.random_credits = random_credits
         self.pattern_credits = pattern_credits
         self.plateau_credits = plateau_credits
-        self.max_tries = max_tries
 
         self.local_search_approach = local_search_approach
 
         #Initialise the row and column evaluations at 9
         self.row_evaluations = [9 for x in range(0, 9)]
         self.col_evaluations = [9 for x in range(0, 9)]
-
-        self.verbose = verbose
 
     #The algorithm method which takes in a start situation
     def solve(self, initial_values):

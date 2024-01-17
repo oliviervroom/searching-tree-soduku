@@ -1,5 +1,7 @@
 import math
-from src.sudoku.SudokuHelper import SudokuHelper
+
+from src.Sudoku.SudokuHelper import SudokuHelper
+
 
 class Sudoku:
     def __init__(self, values):
