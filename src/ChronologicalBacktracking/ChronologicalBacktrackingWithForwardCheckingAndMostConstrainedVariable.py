@@ -1,15 +1,18 @@
 import math
-
+import sys
 from src.ChronologicalBacktracking.ChronologicalBacktrackingWithForwardCheckingSolver import ChronologicalBacktrackingWithForwardCheckingSolver
 
 
 #The class of the algorithm
 class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(ChronologicalBacktrackingWithForwardCheckingSolver):
-    iteration = 0
     already_visited = []
-    i = 0
+
+    def solve(self, initial_values):
+        self.already_visited = []
+        return super().solve(initial_values)
 
     def solve_element(self, element_n = 0):
+        self.steps_forward = self.steps_forward + 1
         if (len(self.already_visited) + len(self.mask[self.mask == 1])) >= 9*9:
             return True
 
@@ -35,6 +38,15 @@ class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(Chr
 
             self.update_domains(row, col)
 
+            # show a live log when solving a sudoku
+            if self.verbose:
+                if self.steps_forward % 500 == 0:
+                    sys.stdout.write(
+                        f"\rSteps forward: {self.steps_forward}, "
+                        f"Steps backward: {self.steps_backward}, "
+                    )
+                    sys.stdout.flush()
+
             if self.solve_element(element_n + 1):
                 return True
 
@@ -43,5 +55,6 @@ class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(Chr
 
         self.already_visited.remove((row, col))
         self.update_domains(row, col)
+        self.steps_backward = self.steps_backward + 1
 
         return False

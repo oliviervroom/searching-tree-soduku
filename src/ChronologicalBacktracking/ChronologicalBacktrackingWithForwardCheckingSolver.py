@@ -5,7 +5,7 @@ from src.Sudoku.SudokuHelper import SudokuHelper
 from src.Sudoku.Sudoku import Sudoku
 import numpy as np
 from itertools import chain
-
+import sys
 
 #The class of the algorithm
 class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktrackingSolver):
@@ -13,6 +13,9 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
 
     # The algorithm method which takes in a start situation
     def solve(self, initial_values):
+        self.steps_forward = 0
+        self.steps_backward = 0
+
         # 1. create mask for uneditable numbers
         self.mask = SudokuHelper.create_mask(initial_values)
 
@@ -30,12 +33,13 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
             self.finished = True
 
         if self.verbose:
-            print(self.sudoku.values)
+            print()
             print('Finished.')
 
         return self.sudoku.values
 
     def solve_element(self, element_n = 0):
+        self.steps_forward = self.steps_forward + 1
         if element_n > ((9 * 9) - 1):
             return True
 
@@ -43,6 +47,7 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
         col = SudokuHelper.get_col_by_element_number(element_n)
 
         if self.mask[row, col] != 0:
+            self.steps_backward = self.steps_backward + 1
             return self.solve_element(element_n + 1)
 
         domain = self.get_domain(row, col)
@@ -54,11 +59,20 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
 
             self.update_domains(row, col)
 
+            # show a live log when solving a sudoku
+            if self.verbose:
+                sys.stdout.write(
+                    f"\rSteps forward: {self.steps_forward}, "
+                    f"Steps backward: {self.steps_backward}, "
+                )
+                sys.stdout.flush()
+
             if self.solve_element(element_n + 1):
                 return True
 
         self.sudoku.values[row][col] = 0
         self.update_domains(row, col)
+        self.steps_backward = self.steps_backward + 1
 
         return False
 
