@@ -13,6 +13,7 @@ class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(Chr
 
     def solve_element(self, element_n = 0):
         self.steps_forward = self.steps_forward + 1
+
         if (len(self.already_visited) + len(self.mask[self.mask == 1])) >= 9*9:
             return True
 
@@ -29,14 +30,11 @@ class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(Chr
         self.already_visited.append((row, col))
 
         domain = self.get_domain(row, col)
-
         for value in domain:
             self.sudoku.values[row][col] = value
 
-            if not self.is_valid(row, col, value):
+            if not self.update_domains(row, col):
                 continue
-
-            self.update_domains(row, col)
 
             # show a live log when solving a sudoku
             if self.verbose:
@@ -50,9 +48,7 @@ class ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(Chr
             if self.solve_element(element_n + 1):
                 return True
 
-            self.sudoku.values[row][col] = 0
-            self.update_domains(row, col)
-
+        self.sudoku.values[row][col] = 0
         self.already_visited.remove((row, col))
         self.update_domains(row, col)
         self.steps_backward = self.steps_backward + 1

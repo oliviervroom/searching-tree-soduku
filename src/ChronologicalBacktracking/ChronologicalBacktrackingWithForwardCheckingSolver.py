@@ -40,6 +40,7 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
 
     def solve_element(self, element_n = 0):
         self.steps_forward = self.steps_forward + 1
+
         if element_n > ((9 * 9) - 1):
             return True
 
@@ -47,25 +48,27 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
         col = SudokuHelper.get_col_by_element_number(element_n)
 
         if self.mask[row, col] != 0:
-            self.steps_backward = self.steps_backward + 1
-            return self.solve_element(element_n + 1)
+            if not self.solve_element(element_n + 1):
+                self.steps_backward = self.steps_backward + 1
+                return False
+
+            return True
 
         domain = self.get_domain(row, col)
         for value in domain:
             self.sudoku.values[row][col] = value
 
-            if not self.is_valid(row, col, value):
+            if not self.update_domains(row, col):
                 continue
-
-            self.update_domains(row, col)
 
             # show a live log when solving a sudoku
             if self.verbose:
-                sys.stdout.write(
-                    f"\rSteps forward: {self.steps_forward}, "
-                    f"Steps backward: {self.steps_backward}, "
-                )
-                sys.stdout.flush()
+                if self.steps_forward % 500 == 0:
+                    sys.stdout.write(
+                        f"\rSteps forward: {self.steps_forward}, "
+                        f"Steps backward: {self.steps_backward}, "
+                    )
+                    sys.stdout.flush()
 
             if self.solve_element(element_n + 1):
                 return True
@@ -86,7 +89,8 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
             if self.mask[r][column] != 0:
                 continue
 
-            self.update_domain(r, column)
+            if len(self.update_domain(r, column)) == 0 and self.sudoku.values[r][column] == 0:
+                return False
 
         for c in range(0,9):
             if c == column:
@@ -95,7 +99,8 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
             if self.mask[row][c] != 0:
                 continue
 
-            self.update_domain(row, c)
+            if len(self.update_domain(row, c)) == 0 and self.sudoku.values[row][c] == 0:
+                return False
 
         cube = SudokuHelper.get_cube(row, column)
         base_row = SudokuHelper.get_row_start(cube)
@@ -112,7 +117,10 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
                 if self.mask[base_row+r][base_col+c] != 0:
                     continue
 
-                self.update_domain(base_row + r, base_col + c)
+                if len(self.update_domain(base_row + r, base_col + c)) == 0 and self.sudoku.values[base_row + r][base_col + c] == 0:
+                    return False
+
+        return True
 
     def update_domain(self, row, column):
         if self.mask[row][column] != 0:
@@ -123,6 +131,8 @@ class ChronologicalBacktrackingWithForwardCheckingSolver(ChronologicalBacktracki
 
         values_to_exclude = list(set(list(chain(self.sudoku.values[row, :], self.sudoku.values[:, column], cube_values))))
         self.domains[(row, column)] = list(filter(lambda x: x not in values_to_exclude, list(range(1,10))))
+
+        return self.domains[(row, column)]
 
     def get_domain(self, row, column):
         return self.domains[(row, column)]

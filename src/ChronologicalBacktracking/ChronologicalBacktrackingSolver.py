@@ -13,6 +13,7 @@ from itertools import chain
 class ChronologicalBacktrackingSolver(Solver):
     steps_forward = 0
     steps_backward = 0
+    max_final_time = None
 
     #The algorithm method which takes in a start situation
     def solve(self, initial_values):
@@ -73,11 +74,12 @@ class ChronologicalBacktrackingSolver(Solver):
 
             # show a live log when solving a sudoku
             if self.verbose:
-                sys.stdout.write(
-                    f"\rSteps forward: {self.steps_forward}, "
-                    f"Steps backward: {self.steps_backward}"
-                )
-                sys.stdout.flush()
+                if self.steps_forward % 500 == 0:
+                    sys.stdout.write(
+                        f"\rSteps forward: {self.steps_forward}, "
+                        f"Steps backward: {self.steps_backward}"
+                    )
+                    sys.stdout.flush()
 
             if self.solve_element(element_n + 1):
                 return True
