@@ -46,7 +46,7 @@ if not isinstance(sudoku_puzzle, list):
     sudoku_puzzle = [sudoku_puzzle[i:i + 9] for i in range(0, len(sudoku_puzzle), 9)]
 
 # Initiate solving algorithm
-solver = ChronologicalBacktrackingWithForwardCheckingAndMostConstrainedVariable(verbose=verbose)
+solver = ChronologicalBacktrackingSolver(verbose=verbose)
 
 start_time = time.time()
 

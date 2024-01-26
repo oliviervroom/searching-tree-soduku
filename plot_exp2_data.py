@@ -35,17 +35,19 @@ for entry in data:
     if entry[0] not in sudoku_stats[entry[2]]:
         sudoku_stats[entry[2]][entry[0]] = {}
 
+    # Hydrate dict better to generate charts more easily.
     sudoku_stats[entry[2]][entry[0]][entry[1]] = entry[3]
 
 average_ct = {}
 for solver, results in sudoku_stats.items():
-
+    # Calculated average over all tests.
     for n_fixed_values, variants in results.items():
         if solver not in average_ct:
             average_ct[solver] = {}
 
         average_ct[solver][n_fixed_values] = sum(variants.values()) / len(variants)
 
+    # Normalized data if set to true.
     if normalize:
         for solver, results in average_ct.items():
             for n_fixed_values, average in results.items():
@@ -54,6 +56,7 @@ for solver, results in sudoku_stats.items():
 # Creating the scatter plot
 plt.figure(figsize=(12, 8))
 
+# Sort values based on solver id.
 average_ct = {k: average_ct[k] for k in sorted(average_ct)}
 
 # Assign a unique color to each Sudoku
@@ -79,6 +82,7 @@ plt.gca().invert_xaxis()
 
 plt.xticks(np.arange(min(x_values), max(x_values)+1, step=1))
 
+# Annotate values to give more insights.
 # plt.annotate(math.floor(average_ct[2][17]*100)/100, (17, average_ct[2][17]), xytext=(0, 15), textcoords='offset points', ha='center', va='bottom', fontsize=8,
 #                  bbox=dict(boxstyle='round,pad=1', fc='white', alpha=0.8))
 #

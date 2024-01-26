@@ -1,5 +1,5 @@
 
-class SudokuGenerator:
+class SudokuRepository:
 
     @staticmethod
     def get_sudoku(requested_fixed_values):
@@ -10,7 +10,7 @@ class SudokuGenerator:
 
         requested_sudokus = []
         for sudoku_input in sudoku_inputs:
-            sudoku_grid = SudokuGenerator.parse_sudoku_input(sudoku_input)
+            sudoku_grid = SudokuRepository.parse_sudoku_input(sudoku_input)
 
             # Count non-zero numbers
             fixed_values = sum(1 for row in sudoku_grid for num in row if num != 0)
