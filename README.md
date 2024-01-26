@@ -17,7 +17,7 @@ To present the result of the solved sudoku, you can choose between:
 
 #### Verbose
 
-For analysing the algoritm we used a live monitoring of the process. You can use it aswell by giving the `verbose` variable the value `True` or `False`.
+For analysing the algoritm we used a live monitoring of the process. You can use it aswell by setting the `verbose` variable to `True`.
 
 -----
 
