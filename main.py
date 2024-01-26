@@ -57,7 +57,7 @@ elapsed_time = end_time - start_time
 
 # Print the solved puzzle and the results
 if solver.finished:
-    print('Elapsed time in seconds:', elapsed_time, 'Total switches:', solver.n_of_switches)
+    print('Elapsed time in seconds:', elapsed_time)
 
     if print_style == PrintStyle.WINDOW:
         Renderer(solver.sudoku.values).render()
